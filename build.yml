@@ -22,16 +22,20 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Install Build Dependencies
+    - name: Install System Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y autoconf libtool pkg-config
+        sudo apt-get install -y autoconf automake libtool pkg-config build-essential git zip unzip zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl
 
-    - name: Build with Buildozer
-      uses: ArtemSBulgakov/buildozer-action@v1
+    - name: Build with Buildozer (Auto-Retry on Failure)
+      uses: nick-invision/retry@v3
       with:
-        command: build android
-        buildozer_version: master
+        timeout_minutes: 30
+        max_attempts: 3
+        command: |
+          # محاولة تنظيف الملفات المؤقتة التالفة قبل البناء لضمان نظافة البيئة
+          buildozer clean || true
+          buildozer -v android debug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
