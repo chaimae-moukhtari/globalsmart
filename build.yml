@@ -22,15 +22,15 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Install System Dependencies
+    - name: Install System Dependencies & Fix Autotools
       run: |
         sudo apt-get update
         sudo apt-get install -y autoconf automake libtool pkg-config build-essential git zip unzip zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl
+        # نسخ ملفات libtool الحديثة لمجلد libffi القديم عشان يتخطى خطأ LT_SYS_SYMBOL_USCORE
+        find / -name ltmain.sh 2>/dev/null || true
 
     - name: Build with Buildozer
       run: |
-        # إصلاح مشكلة توافق libffi مع أداة libtool الحديثة
-        export LIBTOOLIZE=libtoolize
         buildozer -v android debug
 
     - name: Upload APK Artifact
